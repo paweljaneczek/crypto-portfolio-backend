@@ -1,4 +1,5 @@
 const { EthPlorerAPI } = require("./dataSource/EthPlorerAPI");
+const { GraphAPI } = require("./dataSource/GraphAPI");
 const { ApolloServer, gql } = require("apollo-server");
 
 const typeDefs = gql`
@@ -51,7 +52,18 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     walletInfo: async (_source, { address }, { dataSources }) => {
-      return dataSources.ethPlorer.getAddressInfo(address);
+      dataSources.graph
+        .getTestFetch()
+        .then((t) => {
+          console.log("RESULT: ", t);
+        })
+        .catch((e) => {
+          console.log("ERROR: ", e);
+        });
+
+      return dataSources.ethPlorer.getAddressInfo(address).then((result) => {
+        result.tokens
+      });
     },
   },
 };
@@ -65,6 +77,7 @@ const server = new ApolloServer({
   dataSources: () => {
     return {
       ethPlorer: new EthPlorerAPI(),
+      graph: new GraphAPI(),
     };
   },
 });
