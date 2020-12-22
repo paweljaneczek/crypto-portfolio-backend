@@ -1,6 +1,8 @@
-const { EthPlorerAPI } = require("./dataSource/EthPlorerAPI");
-const { GraphAPI } = require("./dataSource/GraphAPI");
-const { ApolloServer, gql } = require("apollo-server");
+import { EthPlorerAPI, GraphAPI } from "./dataSource";
+import { ApolloServer, gql } from "apollo-server";
+import { Context } from "apollo-server-core";
+import { ApolloContext } from "./types";
+import { convertEthPlorerResult } from "./converter";
 
 const typeDefs = gql`
   type WalletTokenPrice {
@@ -14,8 +16,8 @@ const typeDefs = gql`
   type WalletTokenContentInfo {
     address: String!
     name: String
-    decimals: String!
-    symbol: String!
+    decimals: String
+    symbol: String
     totalSupply: String!
     owner: String!
     holdersCount: Int!
@@ -51,24 +53,19 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    walletInfo: async (_source, { address }, { dataSources }) => {
-      dataSources.graph
-        .getTestFetch()
-        .then((t) => {
-          console.log("RESULT: ", t);
-        })
-        .catch((e) => {
-          console.log("ERROR: ", e);
-        });
-
-      return dataSources.ethPlorer.getAddressInfo(address).then((result) => {
-        result.tokens
-      });
+    walletInfo: async (
+      _: unknown,
+      { address }: { address: string },
+      { dataSources }: Context<ApolloContext>,
+    ) => {
+      return dataSources.ethPlorer
+        .getAddressInfo(address)
+        .then(convertEthPlorerResult);
     },
   },
 };
 
-const server = new ApolloServer({
+export default new ApolloServer({
   typeDefs,
   resolvers,
   cacheControl: {
@@ -81,5 +78,3 @@ const server = new ApolloServer({
     };
   },
 });
-
-module.exports = { server };

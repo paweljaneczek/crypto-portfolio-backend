@@ -1,5 +1,5 @@
-const { GraphQLDataSource } = require("apollo-datasource-graphql");
-const { gql } = require("apollo-server-express");
+import { GraphQLDataSource } from "apollo-datasource-graphql";
+import { gql } from "apollo-server-express";
 
 const GET_PAIRS_FETCH = gql`
   query {
@@ -18,10 +18,10 @@ const GET_PAIRS_FETCH = gql`
   }
 `;
 
-class GraphAPI extends GraphQLDataSource {
+export default class GraphAPI extends GraphQLDataSource {
   baseURL = "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2";
 
-  async getTestFetch(tokenIds) {
+  async getTestFetch(tokenIds: string[]) {
     try {
       const response = await this.query(GET_PAIRS_FETCH, {
         variables: {
@@ -35,5 +35,3 @@ class GraphAPI extends GraphQLDataSource {
     }
   }
 }
-
-module.exports = { GraphAPI };

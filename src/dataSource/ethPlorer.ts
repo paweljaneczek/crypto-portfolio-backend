@@ -1,20 +1,18 @@
-const { RESTDataSource } = require("apollo-datasource-rest");
+import { RESTDataSource } from "apollo-datasource-rest";
 
 const ETHPLORER_API_KEY = process.env.ETHPLORER_API_KEY;
 
-class EthPlorerAPI extends RESTDataSource {
+export default class EthPlorerAPI extends RESTDataSource {
   constructor() {
     super();
     this.baseURL = "https://api.ethplorer.io/";
   }
 
-  async getAddressInfo(address) {
+  async getAddressInfo(address: string) {
     return await this.get(
       `getAddressInfo/${address}?apiKey=${ETHPLORER_API_KEY}`,
-      null,
+      undefined,
       { cacheOptions: { ttl: 1 } },
     );
   }
 }
-
-module.exports = { EthPlorerAPI };
